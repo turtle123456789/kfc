@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 20px;
+  color: #202124;
+  overflow-x: hidden;
+}
+.logo-url {
+  background-image: url(https://kfcvn-static.cognizantorderserv.com/images/web/kfc-logo.svg?v=5.0);
+  width: 78px;
+  height: 78px;
+}
+.logo-cart {
+  background-position: -53px 1px;
+}
+.logo-empty-cart {
+  background-position: -7px 1px;
+}
+a {
+  text-decoration: none;
+}
+@layer components {
+  .scale_1 {
+    transform: scaleX(1);
+  }
+  .icon-avatar {
+    background: url(https://kfcvn-static.cognizantorderserv.com/images/web/sprite.png?v=5.0)
+      no-repeat;
+    background-position: -10px -805px;
+  }
+  .text-hover a {
+    position: relative;
+  }
+  .text-hover .active {
+    color: #000;
+  }
+  .text-hover .active::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+  .text-hover a::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: red;
+    bottom: 0;
+    right: 0;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+  }
+  .text-hover:hover a::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+  .text-active a::after {
+    transform: scaleX(1);
+  }
+}
+.roboto {
+  font-family: "Roboto", sans-serif;
+}
+.box-shadow {
+  box-shadow: 1px 1px 7px 3px rgba(0, 0, 0, 0.3);
+}
+.page-with-bar {
+  position: relative;
+}
+.page-with-bar ::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 8px;
+  height: 22px;
+  box-shadow: inset 0 0 0 32px #e4002b, -16px 0 #e4002b, 16px 0 #e4002b;
+}
+li {
+  list-style-type: none;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: red;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+.oswald {
+  font-family: "Oswald", sans-serif;
+}
+.line-space {
+  position: relative;
+}
+.line-space::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.list-shadow {
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-shadow {
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.form {
+  min-height: 75px;
+  width: 60%;
+}
+.fromGroup {
+  position: relative;
+  border-bottom: 1px solid #333;
+  margin-top: 30px;
+  line-height: 1.125;
+  letter-spacing: normal;
+}
+.fromGroup input {
+  outline: none;
+  width: 100%;
+  padding: 10px 0;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.fromGroup input:valid ~ span,
+.fromGroup input:focus ~ span {
+  transform: translateY(-20px);
+  font-size: 10px;
+}
+.fromGroup span {
+  color: currentColor;
+  position: absolute;
+  left: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  top: 11px;
+  transition: 0.3s;
+}
+.border-loader {
+  border: 3px solid;
+  border-color: #fff #fff transparent transparent;
+}
+.animation-loader {
+  animation: rotation 1.5s linear infinite;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotationBack {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+.animation-loader::after,
+.animation-loader::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid;
+  border-color: transparent transparent #ff3d00 #ff3d00;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: rotationBack 0.5s linear infinite;
+  transform-origin: center center;
+}
+.animation-loader::before {
+  width: 32px;
+  height: 32px;
+  border-color: red red transparent transparent;
+  animation: rotation 1.5s linear infinite;
+}
+.bg-empty {
+  background-position: top 20px right 20px;
+  background: url(https://kfcvn-static.cognizantorderserv.com/images/web/empty-cart.png?v=5.0)
+    no-repeat #f8f7f5 bottom;
+}
+.flex-60 {
+  flex: 0 0 60%;
+}
+.flex-40 {
+  flex: 0 0 40%;
+}
+.gpay-card-info-container {
+  width: 100%;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 1px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
