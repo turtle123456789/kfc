@@ -7,7 +7,8 @@ const EditProduct = () => {
   const router = useRouter();
   const { id } = router.query; // Lấy id từ URL
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  const [submitLoading, setSubmitLoading] = useState(false); // Trạng thái loading khi submit
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -20,10 +21,10 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (id) {
+        setLoading(true); // Bắt đầu loading khi fetch
         try {
           const data = await getItem("products", id); // Lấy dữ liệu sản phẩm theo ID
           setProduct(data);
-          console.log('data',data);
           setFormData({
             name: data.name || "",
             price: data.price || "",
@@ -34,7 +35,7 @@ const EditProduct = () => {
         } catch (error) {
           console.error("Error fetching product:", error);
         } finally {
-          setLoading(false);
+          setLoading(false); // Dừng loading sau khi fetch xong
         }
       }
     };
@@ -50,6 +51,7 @@ const EditProduct = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitLoading(true); // Bắt đầu loading khi submit
     try {
       await updateData("products", id, { ...formData }); // Cập nhật sản phẩm trong database
       alert("Sản phẩm đã được cập nhật!");
@@ -57,6 +59,8 @@ const EditProduct = () => {
     } catch (error) {
       console.error("Error updating product:", error);
       alert("Cập nhật sản phẩm thất bại!");
+    } finally {
+      setSubmitLoading(false); // Dừng loading khi cập nhật xong
     }
   };
 
@@ -132,9 +136,10 @@ const EditProduct = () => {
         <div className="flex justify-between">
           <button
             type="submit"
+            disabled={submitLoading} // Vô hiệu hóa nút khi đang loading
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
           >
-            Lưu thay đổi
+            {submitLoading ? "Đang lưu..." : "Lưu thay đổi"} {/* Hiển thị trạng thái khi submit */}
           </button>
           <button
             type="button"
@@ -145,6 +150,13 @@ const EditProduct = () => {
           </button>
         </div>
       </form>
+
+      {/* Spinner khi submit */}
+      {submitLoading && (
+        <div className="text-center mt-4">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-t-transparent border-blue-600" />
+        </div>
+      )}
     </LayoutAdmin>
   );
 };

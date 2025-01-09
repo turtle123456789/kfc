@@ -21,7 +21,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { query, where, orderBy } from "firebase/firestore";
-
+import { getAuth, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 
 const googleAuth = new GoogleAuthProvider();
 const currentAuth = auth.currentUser;
@@ -39,6 +39,27 @@ export async function ChangePassword(uid, newPassword) {
   } catch (e) {}
 }
 
+export async function ChangePasswordV2(uid, newPassword, oldPassword) {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const docRef = doc(db, "users", uid);
+
+  try {
+    const credential = EmailAuthProvider.credential(user.email, oldPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      await updateDoc(docRef, {
+        password: newPassword, 
+      });
+    }
+    
+    console.log("Mật khẩu đã được thay đổi thành công!");
+  } catch (e) {
+    console.error("Đã xảy ra lỗi khi thay đổi mật khẩu:", e);
+  }
+}
 export async function updateProfileUser(name) {
   await updateProfile(currentAuth, { displayName: name });
 }

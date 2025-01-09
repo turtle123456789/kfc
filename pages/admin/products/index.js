@@ -9,6 +9,8 @@ const Products = () => {
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingUserInfo, setLoadingUserInfo] = useState(true);
+  const [loadingId, setLoadingId] = useState(null); // Thêm state cho ID sản phẩm đang xóa
 
   // State phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,21 +21,25 @@ const Products = () => {
 
   useEffect(() => {
     const checkUserRole = async () => {
-      if (userInfo) {
-        try {
-          const user = await getData("users", userInfo.uid);
-          if (user && user.role === "admin") {
-            if (router.pathname !== "/admin/products") {
-              router.push("/admin/products");
-            }
+      if (!userInfo) {
+        setTimeout(() => {
+          setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
+        }, 500); 
+        return;
+      }
+
+      setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`
+      
+      try {
+        const user = await getData("users", userInfo.uid);
+        if (user && user.role === "admin") {
+          if (router.pathname !== "/admin/products") {
+            router.push("/admin/products");
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
         }
-      } else {
-        if (router.pathname !== "/admin") {
-          router.push("/admin");
-        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/admin");
       }
     };
 
@@ -43,8 +49,8 @@ const Products = () => {
       setLoading(true);
       try {
         const productData = await getData("products");
+        // console.log("productData", productData);
         setProducts(productData);
-        console.log("products", productData);
       } catch (error) {
         console.log("Lỗi khi lấy dữ liệu sản phẩm:", error);
       } finally {
@@ -54,6 +60,26 @@ const Products = () => {
 
     fetchProducts();
   }, []);
+
+  if (loadingUserInfo) {
+    return (
+      <LayoutAdmin>
+        <h2 className="text-2xl md:text-4xl mt-5 font-bold text-center">
+          Danh sách Sản phẩm
+        </h2>
+
+        <div className="mt-5 text-right">
+          <button
+            onClick={() => router.push("/admin/products/add")}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+          >
+            + Thêm sản phẩm
+          </button>
+        </div>
+        <div className="text-center mt-10">Đang tải dữ liệu...</div>
+      </LayoutAdmin>
+    );
+  }
 
   // Hàm sắp xếp
   const sortedProducts = () => {
@@ -96,6 +122,8 @@ const Products = () => {
     try {
       const confirm = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?");
       if (confirm) {
+        setLoadingId(id); // Đặt sản phẩm đang xóa vào state
+
         await deleData("products", id); // Gọi hàm deleData với ID sản phẩm
 
         alert("Xóa sản phẩm thành công!");
@@ -104,6 +132,8 @@ const Products = () => {
     } catch (error) {
       console.log("Lỗi khi xóa sản phẩm:", error);
       alert("Xóa sản phẩm thất bại!");
+    } finally {
+      setLoadingId(null); // Sau khi xóa xong, reset lại loadingId
     }
   };
 
@@ -151,7 +181,10 @@ const Products = () => {
                 </thead>
                 <tbody>
                   {currentProducts.map((product, index) => (
-                    <tr key={product.id} className="hover:bg-gray-50 text-sm md:text-base">
+                    <tr
+                      key={product.id}
+                      className={`hover:bg-gray-50 text-sm md:text-base ${loadingId === product.id ? 'bg-gray-100 opacity-50' : ''}`} // Thêm hiệu ứng mờ cho dòng đang xóa
+                    >
                       <td className="px-2 py-2 border text-center">
                         {indexOfFirstProduct + index + 1}
                       </td>
@@ -179,8 +212,9 @@ const Products = () => {
                         <button
                           onClick={() => handleDelete(product.id)}
                           className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
+                          disabled={loadingId === product.id} // Vô hiệu hóa nút xóa khi đang xóa
                         >
-                          Xóa
+                          {loadingId === product.id ? "Đang xóa..." : "Xóa"}
                         </button>
                       </td>
                     </tr>
@@ -222,4 +256,3 @@ const Products = () => {
 };
 
 export default Products;
-    

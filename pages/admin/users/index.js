@@ -9,7 +9,8 @@ const Users = () => {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [loadingUserInfo, setLoadingUserInfo] = useState(true);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
@@ -17,21 +18,25 @@ const Users = () => {
 
   useEffect(() => {
     const checkUserRole = async () => {
-      if (userInfo) {
-        try {
-          const user = await getData("users", userInfo.uid);
-          if (user && user.role === "admin") {
-            if (router.pathname !== "/admin/users") {
-              router.push("/admin/users");
-            }
+      if (!userInfo) {
+        setTimeout(() => {
+          setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
+        }, 500); 
+        return;
+      }
+
+      setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`
+      
+      try {
+        const user = await getData("users", userInfo.uid);
+        if (user && user.role === "admin") {
+          if (router.pathname !== "/admin/users") {
+            router.push("/admin/users");
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
         }
-      } else {
-        if (router.pathname !== "/admin") {
-          router.push("/admin");
-        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/admin");
       }
     };
 

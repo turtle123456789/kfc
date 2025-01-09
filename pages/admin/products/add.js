@@ -12,6 +12,7 @@ const AddProduct = () => {
     img: "",
     type: "",
   });
+  const [loading, setLoading] = useState(false); // Trạng thái loading khi gửi dữ liệu
 
   // Xử lý thay đổi dữ liệu form
   const handleChange = (e) => {
@@ -19,16 +20,34 @@ const AddProduct = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Xử lý gửi form
+  // Xử lý gửi form với validation
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra xem tất cả các trường bắt buộc đã được điền chưa
+    if (!formData.name || !formData.price || !formData.img || !formData.type) {
+      alert("Vui lòng điền đầy đủ thông tin sản phẩm!");
+      return;
+    }
+
+    // Kiểm tra giá phải là một số hợp lệ
+    if (isNaN(formData.price) || formData.price <= 0) {
+      alert("Giá sản phẩm phải là một số hợp lệ và lớn hơn 0!");
+      return;
+    }
+
+    setLoading(true); // Bắt đầu loading khi gửi form
+
     try {
+      console.log("formData", formData);
       await addData("products", { ...formData }); // Thêm sản phẩm vào database
       alert("Sản phẩm đã được thêm thành công!");
       router.push("/admin/products"); // Quay lại danh sách sản phẩm
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Thêm sản phẩm thất bại!");
+    } finally {
+      setLoading(false); // Dừng loading khi hoàn thành
     }
   };
 
@@ -91,14 +110,16 @@ const AddProduct = () => {
             value={formData.type}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
+            required
           />
         </div>
         <div className="flex justify-between">
           <button
             type="submit"
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            disabled={loading} // Vô hiệu hóa nút khi đang loading
           >
-            Thêm sản phẩm
+            {loading ? "Đang thêm..." : "Thêm sản phẩm"} {/* Hiển thị trạng thái khi submit */}
           </button>
           <button
             type="button"
@@ -109,6 +130,13 @@ const AddProduct = () => {
           </button>
         </div>
       </form>
+
+      {/* Spinner khi đang loading */}
+      {loading && (
+        <div className="text-center mt-4">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-t-transparent border-blue-600" />
+        </div>
+      )}
     </LayoutAdmin>
   );
 };
