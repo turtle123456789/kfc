@@ -28,7 +28,7 @@ export default function AdminLogin() {
       account
     );
     if (!error) {
-
+      console.log("đã có tài khoản admin");
     } else {
       const res = await axios.post("/api/auth", {
         account,
@@ -108,7 +108,7 @@ export default function AdminLogin() {
         }
       }
     };
-
+    
     checkUserRole();
   }, [userInfo, router]);
 
