@@ -43,7 +43,6 @@
       if (data) {
         setLoadingBtn(true);
       }
-      console.log(data);
     };
 
     return loading ? (

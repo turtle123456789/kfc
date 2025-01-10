@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { getData, getFilteredOrders } from "@/feature/firebase/firebaseAuth";
+import { getItem, getFilteredOrders } from "@/feature/firebase/firebaseAuth";
 import LayoutAdmin from "@/components/layout-body-admin";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -100,46 +100,46 @@ const Orders = () => {
 
   useEffect(() => {
     const checkUserRole = async () => {
-        if (!userInfo) {
-            setTimeout(() => {
-              setLoadingUserInfo(false);
-            }, 500); 
+      try {
+        const uid = localStorage.getItem("uid");
+        console.log("uid",uid);
+        const user = await getItem("users", uid);
+        console.log("user", user);
+        if (user && user.role === "admin") {
+          setLoadingUserInfo(false);
+        } else {
+          router.push("/admin");
         }
-
-        setLoadingUserInfo(false); 
-        
-        try {
-            const user = await getData("users", userInfo.uid);
-            if (user && user.role === "admin") {
-                if (router.pathname !== "/admin/orders") {
-                router.push("/admin/orders");
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-            router.push("/admin");
-        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/admin");
+      }
     };
 
     checkUserRole();
-
+  }, [userInfo, router]);
+  
+  useEffect(() => {
     const fetchOrders = async () => {
+  
       setLoading(true);
       try {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        const ordersData = await getFilteredOrders("previous-order", start, end);
-        const ordersflat = ordersData.flatMap(orderGroup => orderGroup.items);
-        setOrders(ordersflat);
+  
+        const ordersData = await getFilteredOrders("previous-order", start, end); // Lấy dữ liệu đơn hàng
+        const ordersFlat = ordersData.flatMap((orderGroup) => orderGroup.items); // Gộp tất cả items lại
+        setOrders(ordersFlat);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu đơn hàng:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchOrders();
-  }, [startDate, endDate]);
+  }, [userInfo, startDate, endDate]);
+  
 
   if (loadingUserInfo) {
     return (

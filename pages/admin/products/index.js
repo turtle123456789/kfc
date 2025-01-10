@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getData, deleData } from "@/feature/firebase/firebaseAuth";
+import { getData, deleData, getItem } from "@/feature/firebase/firebaseAuth";
 import LayoutAdmin from "@/components/layout-body-admin";
 import AuthContext from "@/feature/auth-context";
 
@@ -10,31 +10,29 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-  const [loadingId, setLoadingId] = useState(null); // Thêm state cho ID sản phẩm đang xóa
+  const [loadingId, setLoadingId] = useState(null);
 
   // State phân trang
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10; // Số sản phẩm mỗi trang
+  const productsPerPage = 10;
 
   // State sắp xếp
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
 
+  // State tìm kiếm
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const checkUserRole = async () => {
-      if (!userInfo) {
-        setTimeout(() => {
-          setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
-        }, 500); 
-      }
-
-      setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`
-      
       try {
-        const user = await getData("users", userInfo.uid);
+        const uid = localStorage.getItem("uid");
+        console.log("uid",uid);
+        const user = await getItem("users", uid);
+        console.log("user", user);
         if (user && user.role === "admin") {
-          if (router.pathname !== "/admin/products") {
-            router.push("/admin/products");
-          }
+          setLoadingUserInfo(false);
+        } else {
+          router.push("/admin");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -43,22 +41,24 @@ const Products = () => {
     };
 
     checkUserRole();
+  }, [userInfo, router]);
 
-    const fetchProducts = async () => {
+  useEffect(() => {
+    const fetchProducts = async () => { 
+
       setLoading(true);
       try {
         const productData = await getData("products");
-        // console.log("productData", productData);
         setProducts(productData);
       } catch (error) {
-        console.log("Lỗi khi lấy dữ liệu sản phẩm:", error);
+        console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [userInfo]);
 
   if (loadingUserInfo) {
     return (
@@ -100,13 +100,18 @@ const Products = () => {
     }));
   };
 
+  // Tìm kiếm sản phẩm
+  const filteredProducts = sortedProducts().filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Tính toán dữ liệu hiện tại cho trang
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = sortedProducts().slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   // Tính tổng số trang
-  const totalPages = Math.ceil(products.length / productsPerPage);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   // Chuyển trang
   const goToNextPage = () => {
@@ -121,18 +126,18 @@ const Products = () => {
     try {
       const confirm = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?");
       if (confirm) {
-        setLoadingId(id); // Đặt sản phẩm đang xóa vào state
+        setLoadingId(id);
 
-        await deleData("products", id); // Gọi hàm deleData với ID sản phẩm
+        await deleData("products", id);
 
         alert("Xóa sản phẩm thành công!");
-        setProducts((prev) => prev.filter((product) => product.id !== id)); // Cập nhật danh sách sản phẩm
+        setProducts((prev) => prev.filter((product) => product.id !== id));
       }
     } catch (error) {
       console.log("Lỗi khi xóa sản phẩm:", error);
       alert("Xóa sản phẩm thất bại!");
     } finally {
-      setLoadingId(null); // Sau khi xóa xong, reset lại loadingId
+      setLoadingId(null);
     }
   };
 
@@ -142,13 +147,25 @@ const Products = () => {
         Danh sách Sản phẩm
       </h2>
 
-      <div className="mt-5 text-right">
-        <button
-          onClick={() => router.push("/admin/products/add")}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
-        >
-          + Thêm sản phẩm
-        </button>
+      <div className="mt-5 flex justify-between items-center">
+        <div className="flex items-center space-x-3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm kiếm sản phẩm..."
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div className="text-right">
+          <button
+            onClick={() => router.push("/admin/products/add")}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+          >
+            + Thêm sản phẩm
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -182,7 +199,7 @@ const Products = () => {
                   {currentProducts.map((product, index) => (
                     <tr
                       key={product.id}
-                      className={`hover:bg-gray-50 text-sm md:text-base ${loadingId === product.id ? 'bg-gray-100 opacity-50' : ''}`} // Thêm hiệu ứng mờ cho dòng đang xóa
+                      className={`hover:bg-gray-50 text-sm md:text-base ${loadingId === product.id ? 'bg-gray-100 opacity-50' : ''}`}
                     >
                       <td className="px-2 py-2 border text-center">
                         {indexOfFirstProduct + index + 1}
@@ -211,7 +228,7 @@ const Products = () => {
                         <button
                           onClick={() => handleDelete(product.id)}
                           className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
-                          disabled={loadingId === product.id} // Vô hiệu hóa nút xóa khi đang xóa
+                          disabled={loadingId === product.id}
                         >
                           {loadingId === product.id ? "Đang xóa..." : "Xóa"}
                         </button>

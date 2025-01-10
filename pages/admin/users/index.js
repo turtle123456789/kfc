@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getData, deleData } from "@/feature/firebase/firebaseAuth";
+import { getData, deleData, getItem } from "@/feature/firebase/firebaseAuth";
 import LayoutAdmin from "@/components/layout-body-admin";
 import AuthContext from "@/feature/auth-context";
 
@@ -10,28 +10,24 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
+  const [searchTerm, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
 
   useEffect(() => {
     const checkUserRole = async () => {
-      if (!userInfo) {
-        setTimeout(() => {
-          setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
-        }, 500); 
-      }
-
-      setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`
-      
       try {
-        const user = await getData("users", userInfo.uid);
+        const uid = localStorage.getItem("uid");
+        console.log("uid",uid);
+        const user = await getItem("users", uid);
+        console.log("user", user);
         if (user && user.role === "admin") {
-          if (router.pathname !== "/admin/users") {
-            router.push("/admin/users");
-          }
+          setLoadingUserInfo(false);
+        } else {
+          router.push("/admin");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -40,8 +36,12 @@ const Users = () => {
     };
 
     checkUserRole();
+  }, [userInfo, router]);
 
+  useEffect(() => {
     const fetchUsers = async () => {
+      if (!userInfo) return;
+
       setLoading(true);
       try {
         const usersData = await getData("users");
@@ -54,10 +54,17 @@ const Users = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [userInfo]);
+
+  const filteredUsers = () => {
+    // Lọc danh sách người dùng dựa trên từ khóa tìm kiếm
+    return users.filter((user) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
 
   const sortedUsers = () => {
-    const sorted = [...users];
+    const sorted = [...filteredUsers()];
     if (sortConfig.key) {
       sorted.sort((a, b) => {
         const aValue = a[sortConfig.key]?.toLowerCase() || "";
@@ -81,7 +88,7 @@ const Users = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = sortedUsers().slice(indexOfFirstUser, indexOfLastUser);
 
-  const totalPages = Math.ceil(users.length / usersPerPage);
+  const totalPages = Math.ceil(filteredUsers().length / usersPerPage);
 
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -97,6 +104,8 @@ const Users = () => {
 
     try {
       await deleData("users", userId);
+      await deleData("cart", userId);
+      await deleData("previous-order", userId);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
       alert("Tài khoản đã được xóa thành công.");
     } catch (error) {
@@ -115,6 +124,17 @@ const Users = () => {
         Danh sách Người Dùng
       </h2>
 
+      {/* Input tìm kiếm */}
+      <div className="mt-5 flex justify-center">
+        <input
+          type="text"
+          className="border rounded p-2 w-1/2"
+          placeholder="Tìm kiếm theo tên người dùng..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {loading ? (
         <div className="text-center mt-10">Đang tải dữ liệu...</div>
       ) : (
@@ -129,13 +149,17 @@ const Users = () => {
                       className="px-2 py-2 border cursor-pointer"
                       onClick={() => handleSort("name")}
                     >
-                      Tên {sortConfig.key === "name" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Tên{" "}
+                      {sortConfig.key === "name" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </th>
                     <th
                       className="px-2 py-2 border cursor-pointer"
                       onClick={() => handleSort("account")}
                     >
-                      Email {sortConfig.key === "account" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                      Email{" "}
+                      {sortConfig.key === "account" &&
+                        (sortConfig.direction === "asc" ? "↑" : "↓")}
                     </th>
                     <th className="px-2 py-2 border">Số Điện Thoại</th>
                     <th className="px-2 py-2 border">Vai Trò</th>
@@ -144,7 +168,10 @@ const Users = () => {
                 </thead>
                 <tbody>
                   {currentUsers.map((user, index) => (
-                    <tr key={user.id} className="hover:bg-gray-50 text-sm md:text-base">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gray-50 text-sm md:text-base"
+                    >
                       <td className="px-2 py-2 border text-center">
                         {indexOfFirstUser + index + 1}
                       </td>
@@ -155,7 +182,9 @@ const Users = () => {
                       <td className="px-2 py-2 border">
                         {user.phone || "Không có số điện thoại"}
                       </td>
-                      <td className="px-2 py-2 border">{user.role || "Người dùng"}</td>
+                      <td className="px-2 py-2 border">
+                        {user.role || "Người dùng"}
+                      </td>
                       <td className="px-2 py-2 border text-center">
                         <button
                           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-700 text-sm mr-2"

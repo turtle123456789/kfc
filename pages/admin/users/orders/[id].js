@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getFilteredOrdersById } from "@/feature/firebase/firebaseAuth";
 import LayoutAdmin from "@/components/layout-body-admin";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import React from "react";
+import AuthContext from "@/feature/auth-context";
 
 const UserOrders = () => {
   const router = useRouter();
+  const { userInfo } = useContext(AuthContext);
   const { id } = router.query; // Lấy ID người dùng từ URL
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,8 +36,39 @@ const UserOrders = () => {
   };
 
   useEffect(() => {
+    const checkUserRole = async () => {
+      console.log("userInfo", userInfo);
+
+      if (!userInfo) {
+        setLoadingUserInfo(false);
+        return;
+      }
+
+      setLoadingUserInfo(false);
+
+      try {
+        const user = await getItem("users", userInfo.uid);
+
+        if (user && user.role === "admin") {
+          console.log("User is admin");
+        } else {
+          router.push("/admin");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/admin");
+      }
+    };
+
+    if (userInfo) {
+      checkUserRole();
+    }
+  }, [userInfo, router]);
+
+  useEffect(() => {      
     if (!id) return; // Nếu chưa có ID trong URL, không tiếp tục
     const fetchOrders = async () => {
+      if (!userInfo) return;
       setLoading(true);
       try {
         const start = new Date(startDate);

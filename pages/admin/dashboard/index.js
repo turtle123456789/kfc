@@ -24,30 +24,26 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const checkUserRole = async () => {
-      console.log("userInfo",userInfo);
-      if (!userInfo) {
-        setTimeout(() => {
-          setLoadingUserInfo(false);
-        }, 500); 
-      }
-
-      setLoadingUserInfo(false); 
-      
       try {
-          const user = await getData("users", userInfo.uid);
-          console.log("user",user);
-          if (user && user.role === "admin") {
-              if (router.pathname !== "/admin/dashboard") {
-              router.push("/admin/dashboard");
-              }
-          }
-      } catch (error) {
-          console.error("Error fetching user data:", error);
+        const uid = localStorage.getItem("uid");
+        console.log("uid",uid);
+        const user = await getItem("users", uid);
+        console.log("user", user);
+        if (user && user.role === "admin") {
+          setLoadingUserInfo(false);
+        } else {
           router.push("/admin");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/admin");
       }
     };
 
     checkUserRole();
+  }, [userInfo, router]);
+  
+  useEffect(() => {
 
     const fetchReportData = async () => {
       setLoadingReports(true);
@@ -76,21 +72,42 @@ const AdminDashboard = () => {
 
         const groupedByDateOrders = ordersData.reduce((acc, order) => {
           order.items.forEach(item => {
-            const itemDate = new Date(item.date).toLocaleDateString();
+            const date = new Date(item.date);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); 
+            const year = date.getFullYear();
+            const itemDate = `${day}/${month}/${year}`; 
+        
             acc[itemDate] = (acc[itemDate] || 0) + 1;
           });
           return acc;
         }, {});
-
+        
         const groupedByDateRevenue = ordersData.reduce((acc, order) => {
           order.items.forEach(item => {
-            const itemDate = new Date(item.date).toLocaleDateString();
+            const date = new Date(item.date);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); 
+            const year = date.getFullYear();
+            const itemDate = `${day}/${month}/${year}`;
             acc[itemDate] = (acc[itemDate] || 0) + (item.amount || item.total || 0);
           });
           return acc;
         }, {});
 
-        const labels = Object.keys(groupedByDateOrders).sort();
+        const sortedDates = Object.keys(groupedByDateOrders)
+          .map(date => {
+            const [day, month, year] = date.split("/").map(num => parseInt(num, 10));
+            return new Date(year, month - 1, day);
+          })
+          .sort((a, b) => a - b);
+
+        const labels = sortedDates.map(date => {
+          const day = String(date.getDate()).padStart(2, "0");
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const year = date.getFullYear();
+          return `${day}/${month}/${year}`;
+        });
         setChartDataOrders({ labels, dataOrders: labels.map(label => groupedByDateOrders[label]) });
         setChartDataRevenue({ labels, dataRevenue: labels.map(label => groupedByDateRevenue[label]) });
       } catch (error) {

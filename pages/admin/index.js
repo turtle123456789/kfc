@@ -71,6 +71,7 @@ export default function AdminLogin() {
           const id = result.user.uid;
           const user = await getItem("users", id);
           if (user && user.role === "admin") {
+            localStorage.setItem("uid", id);
             router.push("/admin/dashboard");
           } else {
             alert("Tài khoản không phải Admin");

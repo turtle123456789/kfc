@@ -96,10 +96,11 @@ export async function signOut() {
   let error = null;
   try {
     result = await signOutFirebase(auth);
+    localStorage.clear();  
   } catch (e) {
     error = e;
   }
-
+  localStorage.removeItem("id");
   return { result, error };
 }
 export async function signInGoogle() {
