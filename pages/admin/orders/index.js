@@ -104,7 +104,6 @@ const Orders = () => {
             setTimeout(() => {
               setLoadingUserInfo(false);
             }, 500); 
-            return;
         }
 
         setLoadingUserInfo(false); 

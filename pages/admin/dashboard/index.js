@@ -14,41 +14,44 @@ const AdminDashboard = () => {
   const { userInfo } = useContext(AuthContext);
   const router = useRouter();
   const [reportData, setReportData] = useState({ totalOrders: 0, totalUsers: 0, totalAmount: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loadingReports, setLoadingReports] = useState(true); 
   const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)));
   const [endDate, setEndDate] = useState(new Date());
   const [chartDataOrders, setChartDataOrders] = useState({ labels: [], dataOrders: [] });
   const [chartDataRevenue, setChartDataRevenue] = useState({ labels: [], dataRevenue: [] });
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
+  const [loadingCharts, setLoadingCharts] = useState(true);
 
   useEffect(() => {
     const checkUserRole = async () => {
+      console.log("userInfo",userInfo);
       if (!userInfo) {
         setTimeout(() => {
-          setLoadingUserInfo(false); // Stop loading after waiting
+          setLoadingUserInfo(false);
         }, 500); 
-        return;
       }
 
-      setLoadingUserInfo(false); // Stop loading when `userInfo` is available
-        
+      setLoadingUserInfo(false); 
+      
       try {
-        const user = await getData("users", userInfo.uid);
-        if (user && user.role === "admin") {
-          if (router.pathname !== "/admin/orders") {
-            router.push("/admin/orders");
+          const user = await getData("users", userInfo.uid);
+          console.log("user",user);
+          if (user && user.role === "admin") {
+              if (router.pathname !== "/admin/dashboard") {
+              router.push("/admin/dashboard");
+              }
           }
-        }
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        router.push("/admin");
+          console.error("Error fetching user data:", error);
+          router.push("/admin");
       }
     };
 
     checkUserRole();
 
     const fetchReportData = async () => {
-      setLoading(true);
+      setLoadingReports(true);
+      setLoadingCharts(true);
       try {
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -93,7 +96,8 @@ const AdminDashboard = () => {
       } catch (error) {
         console.error("Lỗi khi lấy báo cáo:", error);
       } finally {
-        setLoading(false);
+        setLoadingReports(false);
+        setLoadingCharts(false);
       }
     };
 
@@ -183,12 +187,6 @@ const AdminDashboard = () => {
 
   return (
     <LayoutAdmin>
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="text-white text-2xl">Đang tải dữ liệu...</div>
-        </div>
-      )}
   
       {/* Chọn thời gian */}
       <div className="flex flex-wrap items-center space-y-4 lg:space-y-0 lg:space-x-6 mb-6 p-4 bg-white shadow-md rounded-lg">
@@ -253,30 +251,42 @@ const AdminDashboard = () => {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 py-2 border rounded-lg bg-white shadow-md">
           <h3 className="text-sm md:text-base font-semibold">Biểu đồ số lượng đơn hàng</h3>
-          <Line data={{
-            labels: chartDataOrders.labels,
-            datasets: [{
-              label: 'Số lượng đơn hàng',
-              data: chartDataOrders.dataOrders,
-              fill: false,
-              borderColor: 'rgba(75,192,192,1)',
-              tension: 0.1,
-            }],
-          }} options={chartOptions} />
+          {loadingCharts ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <Line data={{
+              labels: chartDataOrders.labels,
+              datasets: [{
+                label: 'Số lượng đơn hàng',
+                data: chartDataOrders.dataOrders,
+                fill: false,
+                borderColor: 'rgba(75,192,192,1)',
+                tension: 0.1,
+              }],
+            }} options={chartOptions} />
+          )}
         </div>
 
         <div className="p-4 py-2 border rounded-lg bg-white shadow-md">
           <h3 className="text-sm md:text-base font-semibold">Biểu đồ doanh thu</h3>
-          <Line data={{
-            labels: chartDataRevenue.labels,
-            datasets: [{
-              label: 'Doanh thu',
-              data: chartDataRevenue.dataRevenue,
-              fill: false,
-              borderColor: 'rgba(255,99,132,1)',
-              tension: 0.1,
-            }],
-          }} options={chartOptions} />
+          {loadingCharts ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+            </div>
+          ) : (
+            <Line data={{
+              labels: chartDataRevenue.labels,
+              datasets: [{
+                label: 'Doanh thu',
+                data: chartDataRevenue.dataRevenue,
+                fill: false,
+                borderColor: 'rgba(255,99,132,1)',
+                tension: 0.1,
+              }],
+            }} options={chartOptions} />
+          )}
         </div>
       </div>
 

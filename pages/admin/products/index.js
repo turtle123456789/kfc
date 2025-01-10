@@ -25,7 +25,6 @@ const Products = () => {
         setTimeout(() => {
           setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
         }, 500); 
-        return;
       }
 
       setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`

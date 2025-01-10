@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getData, deleteData } from "@/feature/firebase/firebaseAuth";
+import { getData, deleData } from "@/feature/firebase/firebaseAuth";
 import LayoutAdmin from "@/components/layout-body-admin";
 import AuthContext from "@/feature/auth-context";
 
@@ -22,7 +22,6 @@ const Users = () => {
         setTimeout(() => {
           setLoadingUserInfo(false); // Sau thời gian chờ, dừng trạng thái loading
         }, 500); 
-        return;
       }
 
       setLoadingUserInfo(false); // Ngừng trạng thái loading khi đã có `userInfo`
@@ -97,11 +96,11 @@ const Users = () => {
     if (!confirmed) return;
 
     try {
-      await deleteData("users", userId);
+      await deleData("users", userId);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
       alert("Tài khoản đã được xóa thành công.");
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.log("Error deleting user:", error);
       alert("Đã xảy ra lỗi khi xóa tài khoản.");
     }
   };

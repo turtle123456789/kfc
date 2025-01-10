@@ -1,4 +1,4 @@
-import Link from "next/link";
+  import Link from "next/link";
 import NavMenu from "./nav-menu";
 import Menu from "./menu";
 import { useState } from "react";
@@ -26,55 +26,56 @@ export default function AdminHeader() {
 
         {/* Navigation Links */}
         <ul className="hidden md:flex items-center space-x-6">
-          <li>
-            <Link
-              href="/admin/dashboard"
-              className={`text-sm uppercase roboto font-extrabold ${
-                pathname[1] === "admin/dashboard"
-                  ? "underline decoration-red-500 underline-offset-2"
-                  : "text-gray-700 hover:text-red-500"
-              }`}
-            >
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/users"
-              className={`text-sm uppercase roboto font-extrabold ${
-                pathname[1] === "admin/users"
-                  ? "underline decoration-red-500 underline-offset-2"
-                  : "text-gray-700 hover:text-red-500"
-              }`}
-            >
-              Users
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/orders"
-              className={`text-sm uppercase roboto font-extrabold ${
-                pathname[1] === "admin/orders"
-                  ? "underline decoration-red-500 underline-offset-2"
-                  : "text-gray-700 hover:text-red-500"
-              }`}
-            >
-              Orders
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/products"
-              className={`text-sm uppercase roboto font-extrabold ${
-                pathname[1] === "admin/products"
-                  ? "underline decoration-red-500 underline-offset-2"
-                  : "text-gray-700 hover:text-red-500"
-              }`}
-            >
-              Products
-            </Link>
-          </li>
-        </ul>
+  <li>
+    <Link
+      href="/admin/dashboard"
+      className={`text-sm uppercase roboto font-extrabold ${
+        pathname[2] === "dashboard"
+        ? " hover:text-red-700 underline-offset-2 text-green-700"
+        : "text-gray-700 hover:text-red-500 "
+      }`}
+    >
+      Dashboard
+    </Link>
+  </li>
+  <li>
+    <Link
+      href="/admin/users"
+      className={`text-sm uppercase roboto font-extrabold text-gray-700 ${
+        pathname[2] === "users"
+        ? " hover:text-red-700 underline-offset-2 text-green-700"
+        : "text-gray-700 hover:text-red-500 "
+      }`}
+    >
+      Users
+    </Link>
+  </li>
+  <li>
+    <Link
+      href="/admin/orders"
+      className={`text-sm uppercase roboto font-extrabold ${
+        pathname[2] === "orders"
+          ? " hover:text-red-700 underline-offset-2 text-green-700"
+          : "text-gray-700 hover:text-red-500 "
+      }`}
+    >
+      Orders
+    </Link>
+  </li>
+  <li>
+    <Link
+      href="/admin/products"
+      className={`text-sm uppercase roboto font-extrabold ${
+        pathname[2] === "products"
+        ? " hover:text-red-700 underline-offset-2 text-green-700"
+        : "text-gray-700 hover:text-red-700 "
+      }`}
+    >
+      Products
+    </Link>
+  </li>
+</ul>
+
 
         {/* Hamburger Button for Mobile */}
         <button
