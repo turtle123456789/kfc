@@ -59,14 +59,15 @@ export default function AdminLogin() {
       },
     ];
 
-    setErrorInput(validate(listInput));
-
-    if (Object.keys(errorInput).length === 0) {
+    const currentErrorInput = validate(listInput);
+    console.log("currentErrorInput",currentErrorInput.password);
+    if (Object.keys(currentErrorInput).length === 0) {
       try {
         const { result, error } = await signInWithEmailAndPassword(
           account,
           password
         );
+        console.log("error", error);
         if (!error) {
           const id = result.user.uid;
           const user = await getItem("users", id);
@@ -85,7 +86,18 @@ export default function AdminLogin() {
         alert("Thông tin tài khoản hoặc mật khẩu không chính xác.");
       }
     } else {
-      alert("Vui lòng điền đầy đủ thông tin tài khoản và mật khẩu.");
+      alert(
+        `Lỗi đăng nhập: ${
+          currentErrorInput?.password 
+            ? `\n - Mật khẩu: ${currentErrorInput.password}` 
+            : ""
+        }${
+          currentErrorInput?.account 
+            ? `\n - Tài khoản: ${currentErrorInput.account}` 
+            : ""
+        }`
+      );
+
     }
   };
 

@@ -20,7 +20,7 @@ export function validate(data) {
       if (item.type === "account" && !emailRegex.test(item.input)) {
         return {
           ...acc,
-          [item.type]: "Email không chính xác",
+          [item.type]: "Định dạng Email không chính xác",
         };
       }
       if (item.type === "name" && format.test(item.input)) {
