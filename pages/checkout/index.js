@@ -14,6 +14,7 @@ import EmptyCart from "@/components/empty-cart";
 import { useRouter } from "next/router";
 import Delivery from "@/components/delivery";
 
+
 export default function Checkout() {
   const router = useRouter();
   const { userInfo, emptyCart } = useContext(AuthContext);
@@ -30,7 +31,6 @@ export default function Checkout() {
   const [rule, setRule] = useState(false);
   const [bank, setBank] = useState(true);
   const [showModal, setShowModal] = useState(false);
-
   const handelPayment = async () => {
     const result = {
 		orderCode: Number(String(Date.now()).slice(-6)),
@@ -64,7 +64,7 @@ export default function Checkout() {
 		  });
 		emptyCart();
 		setTimeout(() => {
-			// wait 1s
+			// router.push("user/previous-orders")
 		}, 1000);
 		window.location.href = res.data.data.checkoutUrl;
 	}
