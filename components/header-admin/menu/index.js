@@ -38,7 +38,7 @@ export default function Menu({ show, callback }) {
           {loading &&
             type.map((item, index) => (
               <li key={index} className="text-hover">
-                <a className="cursor-pointer">{item}</a>
+                <Link className="cursor-pointer">{item}</Link>
               </li>
             ))}
         </ul>

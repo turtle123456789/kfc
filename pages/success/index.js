@@ -14,7 +14,7 @@ export default function Success() {
     <LayoutForm>
 		<div className="text-center m-auto flex gap-8 flex-col w-full h-full justify-center font-bold" >
 			<h1>Xác nhận thanh toán thành công</h1>
-	  		<a href="/"><h2>Trở về trang chủ</h2></a>
+	  		<Link href="/"><h2>Trở về trang chủ</h2></Link>
 		</div>
       
     </LayoutForm>
