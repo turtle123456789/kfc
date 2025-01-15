@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { AiOutlineClose } from "react-icons/ai";
-
+import Link from "next/link";
 export default function Menu({ show, callback }) {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState(null);
@@ -38,7 +38,7 @@ export default function Menu({ show, callback }) {
           {loading &&
             type.map((item, index) => (
               <li key={index} className="text-hover">
-                <Link className="cursor-pointer">{item}</Link>
+                <Link href="/" className="cursor-pointer">{item}</Link>
               </li>
             ))}
         </ul>
