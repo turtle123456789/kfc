@@ -7,13 +7,17 @@ export default function Menu({ show, callback }) {
   const [type, setType] = useState(null);
 
   async function getType() {
-    const res = await axios.get("/api/product");
-    const data = await res.data;
-    const newData = data.map((item) => {
-      return item.type;
-    });
-    setType(Array.from(new Set(newData)));
-    setLoading(true);
+    try{
+      const res = await axios.get("/api/product");
+      const data = await res.data;
+      const newData = data.map((item) => {
+        return item.type;
+      });
+      setType(Array.from(new Set(newData)));
+      setLoading(true);
+    }catch{
+      console.log("Error");
+    }
   }
 
   useEffect(() => {

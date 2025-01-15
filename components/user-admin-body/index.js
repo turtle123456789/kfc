@@ -13,14 +13,24 @@ export default function UserBody({ children }) {
   const [name, setName] = useState("");
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/admin");
+    try{
+      await signOut();
+      router.push("/admin");
+    }catch{
+      console.log('error', error)
+    }
+
   };
   async function fecthData() {
-    const uid = userInfo.uid;
-    const res = await axios.post("/api/item", { name: "users", id: uid });
-    const data = await res.data;
-    setName(data.name);
+    try{
+      const uid = userInfo.uid;
+      const res = await axios.post("/api/item", { name: "users", id: uid });
+      const data = await res.data;
+      setName(data.name);
+    }catch{
+      console.log('error', error)
+    }
+
   }
   if (!userInfo) {
     return <Loader />;

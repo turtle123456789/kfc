@@ -8,10 +8,15 @@ export default function Footer() {
   const [type, setType] = useState(null);
 
   async function getType() {
-    const res = await axios.get("/api/favourite");
-    const data = await res.data;
-    setType(data);
+    try {
+      const res = await axios.get("/api/favourite");
+      const data = await res.data;
+      setType(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy loại yêu thích:", error);
+    }
   }
+  
 
   useEffect(() => {
     getType();

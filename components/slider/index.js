@@ -6,9 +6,15 @@ import Image from "next/image";
 export default function SliderPanes() {
   const [data, setData] = useState([]);
   const fetchData = async () => {
-    const res = axios.get("/api/slider");
-    setData((await res).data);
+    try {
+      const res = await axios.get("/api/slider"); // Đảm bảo đợi kết quả từ API
+      setData(res.data); // Cập nhật state sau khi nhận được dữ liệu
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu slider:", error);
+      // Có thể thêm thông báo lỗi cho người dùng nếu cần
+    }
   };
+  
   const settings = {
     infinite: true,
     speed: 500,

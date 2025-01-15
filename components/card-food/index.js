@@ -13,22 +13,31 @@ export default function CardFood({ description, name, img, price, id }) {
   const { userInfo, increment } = useContext(AuthContext);
   const handleAdd = async () => {
     setLoading(true);
-    const data = {
-      description,
-      name,
-      img,
-      price,
-      id,
-      uid: userInfo.uid,
-      quantity: 1,
-    };
-    const res = await axios.post("/api/cart", data);
-    const { result } = await res.data;
-    if (result === "success") {
-      setLoading(false);
+    try {
+      const data = {
+        description,
+        name,
+        img,
+        price,
+        id,
+        uid: userInfo.uid,
+        quantity: 1,
+      };
+  
+      const res = await axios.post("/api/cart", data);
+      const { result } = res.data;
+  
+      if (result === "success") {
+        increment(); // Gọi hàm tăng số lượng chỉ khi thêm thành công
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
+      // Thêm xử lý lỗi, như thông báo cho người dùng
+    } finally {
+      setLoading(false); // Đảm bảo luôn tắt trạng thái loading
     }
-    increment();
   };
+  
   return (
     <div className="relative rounded list-shadow p-[10px]">
       <div className="overflow-hidden">

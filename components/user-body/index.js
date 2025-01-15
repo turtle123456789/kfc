@@ -10,8 +10,13 @@ export default function UserBody({ children }) {
   const pathname = router.pathname;
   const { userInfo } = useContext(AuthContext);
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/login");
+    try{
+      await signOut();
+      router.push("/login");
+    }catch{
+      console.log('error', error)
+    }
+   
   };
   if (!userInfo) {
     return <Loader />;

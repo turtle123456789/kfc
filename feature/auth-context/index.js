@@ -28,22 +28,27 @@ export function AuthContextProvider({ children }) {
   };
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        let total = 0;
-        setUser(user);
-        const res = await getItem("cart", user.uid);
-        if (res !== null) {
-          for (const key in res.arrayCart) {
-            total += res.arrayCart[key].quantity;
+      try{
+        if (user) {
+          let total = 0;
+          setUser(user);
+          const res = await getItem("cart", user.uid);
+          if (res !== null) {
+            for (const key in res.arrayCart) {
+              total += res.arrayCart[key].quantity;
+            }
+            setQuantity(total);
+          } else {
+            setQuantity(0);
           }
-          setQuantity(total);
         } else {
+          setUser(null);
           setQuantity(0);
         }
-      } else {
-        setUser(null);
-        setQuantity(0);
+      }catch{
+        console.log("Error")
       }
+    
     });
 
     return () => unsubscribe();

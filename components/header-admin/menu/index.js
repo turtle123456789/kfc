@@ -6,14 +6,21 @@ export default function Menu({ show, callback }) {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState(null);
   async function getType() {
-    const res = await axios.get("/api/product");
-    const data = await res.data;
-    const newData = data.map((item) => {
-      return item.type;
-    });
-    setType(Array.from(new Set(newData)));
-    setLoading(true);
+    setLoading(true); // Bắt đầu trạng thái loading trước khi gọi API
+    try {
+      const res = await axios.get("/api/product");
+      const data = await res.data;
+      const newData = data.map((item) => item.type);
+      
+      setType(Array.from(new Set(newData))); // Lọc các giá trị duy nhất từ data
+    } catch (error) {
+      console.error("Lỗi khi lấy loại sản phẩm:", error);
+      // Thêm xử lý lỗi nếu cần, ví dụ thông báo cho người dùng
+    } finally {
+      setLoading(false); // Đảm bảo trạng thái loading luôn được tắt khi hoàn thành
+    }
   }
+  
   useEffect(() => {
     getType();
   }, []);

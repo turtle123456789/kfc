@@ -23,54 +23,78 @@ export default function CardCart({
   const [display, setDisplay] = useState(true);
   const handleDecrement = async () => {
     setLoading(true);
-    const data = {
-      description,
-      name,
-      img,
-      price,
-      id,
-      uid: userInfo.uid,
-      quantity: -1,
-    };
-    const res = await axios.post("/api/cart", data);
-    const { result } = await res.data;
-    if (result === "success") {
+    try {
+      const data = {
+        description,
+        name,
+        img,
+        price,
+        id,
+        uid: userInfo.uid,
+        quantity: -1,
+      };
+  
+      const res = await axios.post("/api/cart", data);
+      const { result } = res.data;
+  
+      if (result === "success") {
+        setValue(value - 1);
+        decrement();
+        callback(-price);
+      }
+    } catch (error) {
+      console.error("Lỗi khi giảm số lượng sản phẩm:", error);
+    } finally {
       setLoading(false);
     }
-    setValue(value - 1);
-    decrement();
-    callback(-price);
   };
+  
   const handleIncrement = async () => {
     setLoading(true);
-    const data = {
-      description,
-      name,
-      img,
-      price,
-      id,
-      uid: userInfo.uid,
-      quantity: 1,
-    };
-    const res = await axios.post("/api/cart", data);
-    const { result } = await res.data;
-    if (result === "success") {
+    try {
+      const data = {
+        description,
+        name,
+        img,
+        price,
+        id,
+        uid: userInfo.uid,
+        quantity: 1,
+      };
+  
+      const res = await axios.post("/api/cart", data);
+      const { result } = res.data;
+  
+      if (result === "success") {
+        increment();
+        setValue(value + 1);
+        callback({ price });
+      }
+    } catch (error) {
+      console.error("Lỗi khi tăng số lượng sản phẩm:", error);
+    } finally {
       setLoading(false);
     }
-    increment();
-    setValue(value + 1);
-    callback({ price });
   };
+  
   const handleDelete = async () => {
     setLoading(true);
-    const res = await axios.put("/api/cart", { id, uid: userInfo.uid });
-    const data = await res.data;
-    if (data.success) {
-      decrement(quantity);
-      setDisplay(false);
-      callback({ price, quantity });
+    try {
+      const res = await axios.put("/api/cart", { id, uid: userInfo.uid });
+      const data = res.data;
+  
+      if (data.success) {
+        decrement(quantity);
+        setDisplay(false);
+        callback({ price, quantity });
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa sản phẩm:", error);
+    } finally {
+      setLoading(false);
     }
   };
+  
   return (
     <div
       className={`${
