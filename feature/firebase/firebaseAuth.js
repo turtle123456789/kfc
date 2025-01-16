@@ -144,7 +144,12 @@ export const UpLoadFile = async (img) => {
           console.error(error);
         },
         async () => {
-          urlDownload = await getDownloadURL(uploadTask.snapshot.ref);
+          try{
+            urlDownload = await getDownloadURL(uploadTask.snapshot.ref);
+          }catch{
+            console.error(error);
+          }
+         
         }
       );
     } else {
