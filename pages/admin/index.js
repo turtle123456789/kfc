@@ -24,26 +24,31 @@ export default function AdminLogin() {
     const name = "Admin";
     const role = "admin";
     const phone = 19001111;
-    const { result, error } = await checkAccountExists(
-      account
-    );
-    if (!error) {
-      console.log("đã có tài khoản admin");
-    } else {
-      const res = await axios.post("/api/auth", {
-        account,
-        password,
-        phone,
-        name,
-        role,
-      });
-      const data = await res.data;
-      if (data.login) {
-        console.log("Tạo tài khoản thành công");
+    try{
+      const { result, error } = await checkAccountExists(
+        account
+      );
+      if (!error) {
+        console.log("đã có tài khoản admin");
       } else {
-        console.log("Tài khoản đã có người sử dụng");
+        const res = await axios.post("/api/auth", {
+          account,
+          password,
+          phone,
+          name,
+          role,
+        });
+        const data = await res.data;
+        if (data.login) {
+          console.log("Tạo tài khoản thành công");
+        } else {
+          console.log("Tài khoản đã có người sử dụng");
+        }
       }
+    }catch{
+      console.log("Tạo tài khoản admin thất bại");
     }
+
   };
 
   // Hàm đăng nhập
@@ -61,44 +66,49 @@ export default function AdminLogin() {
 
     const currentErrorInput = validate(listInput);
     console.log("currentErrorInput",currentErrorInput.password);
-    if (Object.keys(currentErrorInput).length === 0) {
-      try {
-        const { result, error } = await signInWithEmailAndPassword(
-          account,
-          password
-        );
-        console.log("error", error);
-        if (!error) {
-          const id = result.user.uid;
-          const user = await getItem("users", id);
-          if (user && user.role === "admin") {
-            localStorage.setItem("uid", id);
-            router.push("/admin/dashboard");
+    try{
+      if (Object.keys(currentErrorInput).length === 0) {
+        try {
+          const { result, error } = await signInWithEmailAndPassword(
+            account,
+            password
+          );
+          console.log("error", error);
+          if (!error) {
+            const id = result.user.uid;
+            const user = await getItem("users", id);
+            if (user && user.role === "admin") {
+              localStorage.setItem("uid", id);
+              router.push("/admin/dashboard");
+            } else {
+              alert("Tài khoản không phải Admin");
+              await signOut();
+            }
           } else {
-            alert("Tài khoản không phải Admin");
-            await signOut();
+            alert("Thông tin tài khoản hoặc mặt khẩu không chính xác");
           }
-        } else {
-          alert("Thông tin tài khoản hoặc mặt khẩu không chính xác");
+        } catch (error) {
+          console.log("Lỗi khi lấy thông tin admin:", error);
+          alert("Thông tin tài khoản hoặc mật khẩu không chính xác.");
         }
-      } catch (error) {
-        console.log("Lỗi khi lấy thông tin admin:", error);
-        alert("Thông tin tài khoản hoặc mật khẩu không chính xác.");
+      } else {
+        alert(
+          `Lỗi đăng nhập: ${
+            currentErrorInput?.password 
+              ? `\n - Mật khẩu: ${currentErrorInput.password}` 
+              : ""
+          }${
+            currentErrorInput?.account 
+              ? `\n - Tài khoản: ${currentErrorInput.account}` 
+              : ""
+          }`
+        );
+  
       }
-    } else {
-      alert(
-        `Lỗi đăng nhập: ${
-          currentErrorInput?.password 
-            ? `\n - Mật khẩu: ${currentErrorInput.password}` 
-            : ""
-        }${
-          currentErrorInput?.account 
-            ? `\n - Tài khoản: ${currentErrorInput.account}` 
-            : ""
-        }`
-      );
-
+    }catch{
+      console.log("Đăng nhập thất bại");
     }
+
   };
 
   useEffect(() => {

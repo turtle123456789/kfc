@@ -16,11 +16,16 @@ export default function Cart() {
 
   const fecthData = async () => {
     let value = 0;
-    const res = await axios.post("/api/item", {
-      id: userInfo.uid,
-      name: "cart",
-    });
-    const data = res.data;
+    try{
+
+      const res = await axios.post("/api/item", {
+        id: userInfo.uid,
+        name: "cart",
+      });
+      const data = res.data;
+    }catch{
+      console.log('error', error)
+    }
     if (data) {
       setTotalFood(data.arrayCart.length);
       data.arrayCart.forEach((element) => {

@@ -12,16 +12,21 @@ export default function PreviousOrders() {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   async function fetchData() {
-    const res = await axios.post("/api/item", {
-      name: "previous-order",
-      id: userInfo.uid,
-    });
-    const data = await res.data;
-    if (data) {
-      setPreviousOrder(data.items);
-      setTotal(data.items.length);
+    try{
+      const res = await axios.post("/api/item", {
+        name: "previous-order",
+        id: userInfo.uid,
+      });
+      const data = await res.data;
+      if (data) {
+        setPreviousOrder(data.items);
+        setTotal(data.items.length);
+      }
+      setLoading(true);
+    }catch{
+      console.log("Error fetching data");
     }
-    setLoading(true);
+   
   }
   useEffect(() => {
     if (userInfo) {

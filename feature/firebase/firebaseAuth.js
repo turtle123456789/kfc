@@ -119,46 +119,51 @@ export async function signInGoogle() {
 export const UpLoadFile = async (img) => {
   let urlDownload,
     upload = null;
-
-  if (img) {
-    const name = img.name;
-    const storageRef = ref(storage, `image/${name}`);
-    const uploadTask = uploadBytesResumable(storageRef, img);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        upload = progress;
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
+  try{
+    if (img) {
+      const name = img.name;
+      const storageRef = ref(storage, `image/${name}`);
+      const uploadTask = uploadBytesResumable(storageRef, img);
+  
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          upload = progress;
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {
+          console.error(error);
+        },
+        async () => {
+          urlDownload = await getDownloadURL(uploadTask.snapshot.ref);
         }
-      },
-      (error) => {
-        console.error(error);
-      },
-      async () => {
-        urlDownload = await getDownloadURL(uploadTask.snapshot.ref);
-      }
-    );
-  } else {
-    console.error("File not found");
-  }
+      );
+    } else {
+      console.error("File not found");
+    }
+  
+    while (!urlDownload) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }catch{
 
-  while (!urlDownload) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
+  
 
   return { urlDownload, upload };
 };
 export const getData = async (name) => {
-  let newData;
+  try{
+    let newData;
   await getDocs(collection(db, name)).then((querySnapshot) => {
     const data = querySnapshot.docs.map((doc) => ({
       ...doc.data(),
@@ -167,6 +172,10 @@ export const getData = async (name) => {
     newData = data;
   });
   return newData;
+  }catch{
+    console.error("Error");
+  }
+  
 };
 
 export const addData = async (name, data) => {
@@ -217,14 +226,20 @@ export const getItem = async (name, id) => {
 export const deleteElementArray = async (name, uid, id, nameArray) => {
   const docRef = doc(db, name, uid);
   const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    const newArray = data[nameArray].filter((obj) => obj.id !== id);
-
-    await updateDoc(docRef, {
-      [nameArray]: newArray,
-    });
+  try{
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const newArray = data[nameArray].filter((obj) => obj.id !== id);
+  
+      await updateDoc(docRef, {
+        [nameArray]: newArray,
+      });
+    }
+  }catch
+  {
+    console.log("Error deleting element from array");
   }
+ 
 };
 
 export const addToFirebaseArray = async (collectionName, documentId, data) => {

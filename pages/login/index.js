@@ -32,23 +32,28 @@ export default function Login() {
       },
     ];
     setErrorInput(validate(listInput));
-    if (Object.keys(errorInput).length === 0) {
-      const { result, error } = await signInWithEmailAndPassword(
-        account,
-        password
-      );
-      if (!error) {
-        const id = result.user.uid;
-        const user = await getItem("users", id);
-        if (!user) {
-          await signOut();
+    try{
+      if (Object.keys(errorInput).length === 0) {
+        const { result, error } = await signInWithEmailAndPassword(
+          account,
+          password
+        );
+        if (!error) {
+          const id = result.user.uid;
+          const user = await getItem("users", id);
+          if (!user) {
+            await signOut();
+          } else {
+            router.push("/");
+          }
         } else {
-          router.push("/");
+          alert("thông tin tài khoản hoặc mặt khẩu không chính xác");
         }
-      } else {
-        alert("thông tin tài khoản hoặc mặt khẩu không chính xác");
       }
+    }catch{
+      console.log('error', error)
     }
+
   };
   useEffect(() => {
     if (userInfo) {
@@ -56,22 +61,27 @@ export default function Login() {
     }
   }, [userInfo]);
   const loginWithGoogle = async () => {
-    const { result, error } = await signInGoogle();
-    if (!error) {
-      const uid = result.uid;
-      const user = await getItem("users", uid);
-      console.log(user);
-      if (!user) {
-        const data = {
-          account: result.email,
-          password,
-          phone: result.phoneNumber,
-          name: result.displayName,
-        };
-        await addDataWithID("users", uid, data);
+    try{
+      const { result, error } = await signInGoogle();
+      if (!error) {
+        const uid = result.uid;
+        const user = await getItem("users", uid);
+        console.log(user);
+        if (!user) {
+          const data = {
+            account: result.email,
+            password,
+            phone: result.phoneNumber,
+            name: result.displayName,
+          };
+          await addDataWithID("users", uid, data);
+        }
+        router.push("/");
       }
-      router.push("/");
+    }catch{
+      console.log('error', error)
     }
+
   };
 
   return (

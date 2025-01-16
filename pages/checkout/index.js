@@ -49,61 +49,76 @@ export default function Checkout() {
 		},
     	payment: "delivery",
     };
-	if (bank) {
-		 const res = await axios.post("/api/payment", result);
-		const newData = await res.data;
-    if (newData.result) {
-      emptyCart();
-      setShowModal(true);
+    try{
+      if (bank) {
+        const res = await axios.post("/api/payment", result);
+       const newData = await res.data;
+       if (newData.result) {
+         emptyCart();
+         setShowModal(true);
+       }
+     } else {
+       const res = await axios.post("/api/payment/create", result, {
+         headers: {
+           "Content-Type": "application/json",
+         },
+         });
+       emptyCart();
+       setTimeout(() => {
+         router.push("user/previous-orders")
+       }, 1000);
+       window.location.href = res.data.data.checkoutUrl;
+     }
+       // const newData = await res.data;
+       // if (newData.result) {
+       //   emptyCart();
+       //   setShowModal(true);
+       // }
+    }catch{
+      console.log('error', error)
     }
-	} else {
-		const res = await axios.post("/api/payment/create", result, {
-			headers: {
-			  "Content-Type": "application/json",
-			},
-		  });
-		emptyCart();
-		setTimeout(() => {
-			// router.push("user/previous-orders")
-		}, 1000);
-		window.location.href = res.data.data.checkoutUrl;
-	}
-    // const newData = await res.data;
-    // if (newData.result) {
-    //   emptyCart();
-    //   setShowModal(true);
-    // }
+
   };
   useEffect(() => {
     async function fectchData() {
-      const res = await axios.post("/api/item", {
-        name: "cart",
-        id: userInfo.uid,
-      });
-      const data = await res.data;
-      var value = null;
-      if (data) {
-        data.arrayCart.forEach((element) => {
-          value += element.quantity * element.price;
+      try{
+        const res = await axios.post("/api/item", {
+          name: "cart",
+          id: userInfo.uid,
         });
-        setTotal(value);
-        setData(data);
+        const data = await res.data;
+        var value = null;
+        if (data) {
+          data.arrayCart.forEach((element) => {
+            value += element.quantity * element.price;
+          });
+          setTotal(value);
+          setData(data);
+        }
+        setLoading(false);
+      }catch{
+        console.log('error', error)
       }
-      setLoading(false);
+
     }
     if (userInfo) {
       fectchData();
     }
   }, [userInfo]);
   const handleGetLocation = async () => {
-    await getPosition((value) => {
-      const { result, error } = value;
-      if (!error) {
-        console.log(result);
-        setCity(result.city);
-        setDistrict(result.locality);
-      }
-    });
+    try{
+      await getPosition((value) => {
+        const { result, error } = value;
+        if (!error) {
+          console.log(result);
+          setCity(result.city);
+          setDistrict(result.locality);
+        }
+      });
+    }catch{
+      console.log('error', error)
+    }
+   
   };
   if (loading) {
     return <Loader />;

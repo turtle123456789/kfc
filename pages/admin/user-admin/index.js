@@ -14,13 +14,18 @@
     const [loadingBtn, setLoadingBtn] = useState(true);
 
     async function fecthData() {
-      const uid = userInfo.uid;
+      try{
+        const uid = userInfo.uid;
       const res = await axios.post("/api/item", { name: "users", id: uid });
       const data = await res.data;
       setName(data.name);
       setEmail(data.account);
       setPhone(data.phone ? data.phone : "");
       setLoading(true);
+      }catch{
+        console.log("Error");
+      }
+      
     }
 
     useEffect(() => {
@@ -38,11 +43,16 @@
         col: "users",
         id: userInfo.uid,
       };
-      const res = await axios.put("/api/item", result);
-      const data = await res.data;
-      if (data) {
-        setLoadingBtn(true);
+      try{
+        const res = await axios.put("/api/item", result);
+        const data = await res.data;
+        if (data) {
+          setLoadingBtn(true);
+        }
+      }catch{
+        console.log("Error");
       }
+     
     };
 
     return loading ? (

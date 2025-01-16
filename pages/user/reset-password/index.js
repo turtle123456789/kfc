@@ -10,14 +10,19 @@ export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const handleChange = async () => {
-    if (newPassword === confirmPassword) {
-      const { success, error } = axios.put("/api/auth", {
-        newPassword,
-        uid: userInfo.uid,
-      });
-    } else {
-      console.log("fail");
+    try{
+      if (newPassword === confirmPassword) {
+        const { success, error } = axios.put("/api/auth", {
+          newPassword,
+          uid: userInfo.uid,
+        });
+      } else {
+        console.log("fail");
+      }
+    }catch{
+      console.log("Error");
     }
+   
   };
   console.log(userInfo);
   return (

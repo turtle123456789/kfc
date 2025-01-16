@@ -13,13 +13,18 @@ export default function User() {
   const [phone, setPhone] = useState("");
   const [loadingBtn, setLoadingBtn] = useState(true);
   async function fecthData() {
-    const uid = userInfo.uid;
-    const res = await axios.post("/api/item", { name: "users", id: uid });
-    const data = await res.data;
-    setName(data.name);
-    setEmail(data.account);
-    setPhone(data.phone ? data.phone : "");
-    setLoading(true);
+    try{
+      const uid = userInfo.uid;
+      const res = await axios.post("/api/item", { name: "users", id: uid });
+      const data = await res.data;
+      setName(data.name);
+      setEmail(data.account);
+      setPhone(data.phone ? data.phone : "");
+      setLoading(true);
+    }catch{
+      console.log("error");
+    }
+   
   }
   useEffect(() => {
     if (userInfo) {
@@ -27,20 +32,25 @@ export default function User() {
     }
   }, [userInfo]);
   const handleUpdate = async () => {
-    setLoadingBtn(false);
-    const result = {
-      name,
-      account: email,
-      phone,
-      col: "users",
-      id: userInfo.uid,
-    };
-    const res = await axios.put("/api/item", result);
-    const data = await res.data;
-    if (data) {
-      setLoadingBtn(true);
+    try{
+      setLoadingBtn(false);
+      const result = {
+        name,
+        account: email,
+        phone,
+        col: "users",
+        id: userInfo.uid,
+      };
+      const res = await axios.put("/api/item", result);
+      const data = await res.data;
+      if (data) {
+        setLoadingBtn(true);
+      }
+      console.log(data);
+    }catch{
+      console.log("error");
     }
-    console.log(data);
+
   };
   return loading ? (
     <UserBody>

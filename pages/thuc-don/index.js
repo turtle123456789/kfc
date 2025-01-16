@@ -13,15 +13,25 @@ export default function ThucDon() {
   const router = useRouter();
   const { id } = router.query;
   async function fecthType() {
-    const res = await axios.get("/api/favourite");
-    const data = await res.data;
-    setTypes(data);
+    try{
+      const res = await axios.get("/api/favourite");
+      const data = await res.data;
+      setTypes(data);
+    }catch{
+      console.log("error");
+    }
+
   }
   async function fecthData() {
-    const res = await axios.get("/api/product");
-    const data = await res.data;
-    setProducts(data);
-    setLoading(true);
+    try{
+      const res = await axios.get("/api/product");
+      const data = await res.data;
+      setProducts(data);
+      setLoading(true);
+    }catch{
+      console.log("error");
+    }
+
   }
   useEffect(() => {
     fecthData();

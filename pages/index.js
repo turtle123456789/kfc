@@ -10,15 +10,25 @@ export default function Home() {
   const [foods, setFoods] = useState(null);
   const [loading, setLoading] = useState(false);
   async function fecthData() {
-    const res = await axios.get("/api/favourite");
-    const data = await res.data;
-    setListFood(data);
-    setLoading(true);
+    try{
+      const res = await axios.get("/api/favourite");
+      const data = await res.data;
+      setListFood(data);
+      setLoading(true);
+    }catch{
+      console.log('error', error)
+    }
+    
   }
   async function fectFood() {
-    const res = await axios.get("/api/product");
-    const data = await res.data;
-    setFoods(data);
+    try{
+      const res = await axios.get("/api/product");
+      const data = await res.data;
+      setFoods(data);
+    }catch{
+      console.log('error', error)
+    }
+    
   }
   useEffect(() => {
     fecthData();

@@ -41,21 +41,26 @@ export default function Register() {
     setErrorInput(validate(listInput));
   };
   const postData = async () => {
-    setLoading(true);
-    const res = await axios.post("/api/auth", {
-      account,
-      password,
-      phone,
-      name,
-    });
-    const data = await res.data;
-    setLoading(false);
-    if (data.login) {
-      alert("Tạo tài khoản thành công");
-      router.push("/login");
-    } else {
-      alert("Tài khoản đã có người sử dụng");
+    try{
+      setLoading(true);
+      const res = await axios.post("/api/auth", {
+        account,
+        password,
+        phone,
+        name,
+      });
+      const data = await res.data;
+      setLoading(false);
+      if (data.login) {
+        alert("Tạo tài khoản thành công");
+        router.push("/login");
+      } else {
+        alert("Tài khoản đã có người sử dụng");
+      }
+    }catch{
+      console.log("error");
     }
+
   };
   useEffect(() => {
     if (userInfo) {
