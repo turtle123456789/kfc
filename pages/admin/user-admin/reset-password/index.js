@@ -45,7 +45,7 @@ export default function ResetPassword() {
     }
 
     setLoading(true); // Bắt đầu loading
-
+    try {
     const { result, error } = await checkAccountAndPassword(userInfo.email, password);
 
     if (error) {
@@ -58,7 +58,7 @@ export default function ResetPassword() {
       return;
     }
 
-    try {
+
       await ChangePasswordV2(userInfo.uid, newPassword, password);
       alert("Mật khẩu đã được đổi thành công!");
     } catch (err) {

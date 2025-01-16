@@ -12,22 +12,27 @@ export default async function handle(req, res) {
     let add = false;
     const data = req.body;
     let arrayCart = [];
-    const listCart = await getItem("cart", uid);
-    if (listCart) {
-      arrayCart = listCart.arrayCart;
-      for (const key in arrayCart) {
-        if (arrayCart[key].id === data.id) {
-          arrayCart[key].quantity = arrayCart[key].quantity + data.quantity;
-          add = true;
-          break;
+    try{
+      const listCart = await getItem("cart", uid);
+      if (listCart) {
+        arrayCart = listCart.arrayCart;
+        for (const key in arrayCart) {
+          if (arrayCart[key].id === data.id) {
+            arrayCart[key].quantity = arrayCart[key].quantity + data.quantity;
+            add = true;
+            break;
+          }
         }
-      }
-      if (add === false) {
+        if (add === false) {
+          arrayCart.push({ ...data });
+        }
+      } else {
         arrayCart.push({ ...data });
       }
-    } else {
-      arrayCart.push({ ...data });
+    }catch{
+      res.status(500).json({ message: "Error" });
     }
+    
     try {
       await addDataWithID("cart", uid, { arrayCart });
       res.status(200).json({ result: "success", output: arrayCart });
