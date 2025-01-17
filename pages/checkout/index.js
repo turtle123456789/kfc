@@ -39,8 +39,8 @@ export default function Checkout() {
       	date: getDate(),
       	amount: total + 10000,
 		description: `Thanh toan hoa don`,
-		cancelUrl: "http://localhost:3000/cancel",
-		returnUrl: "http://localhost:3000/success",
+		cancelUrl: "https://kfc-five-nu.vercel.app/cancel",
+		returnUrl: "https://kfc-five-nu.vercel.app/success/:id",
       	address: {
 			home,
 			wards,
@@ -53,7 +53,9 @@ export default function Checkout() {
       if (bank) {
         const res = await axios.post("/api/payment", result);
        const newData = await res.data;
+       console.log('newData', newData)
        if (newData.result) {
+        await axios.delete(`/api/cart`,{ params: { uid: userInfo.uid } });
          emptyCart();
          setShowModal(true);
        }
@@ -63,6 +65,7 @@ export default function Checkout() {
            "Content-Type": "application/json",
          },
          });
+         console.log('res', res)
        emptyCart();
        setTimeout(() => {
          router.push("user/previous-orders")
@@ -80,6 +83,7 @@ export default function Checkout() {
 
   };
   useEffect(() => {
+    
     async function fectchData() {
       try{
         const res = await axios.post("/api/item", {
@@ -99,7 +103,7 @@ export default function Checkout() {
       }catch{
         console.log('error', error)
       }
-
+      
     }
     if (userInfo) {
       fectchData();

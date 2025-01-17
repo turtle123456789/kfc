@@ -8,7 +8,6 @@ import { AiOutlineLoading } from "react-icons/ai";
 import { CiCircleCheck } from "react-icons/ci";
 import { validate } from "@/feature/validation";
 import AuthContext from "@/feature/auth-context";
-import Link from "next/link";
 export default function Cancel() {
   return (
 	<LayoutForm>

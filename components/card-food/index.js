@@ -10,7 +10,7 @@ import { formatMoney } from "@/utils";
 export default function CardFood({ description, name, img, price, id }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { userInfo, increment } = useContext(AuthContext);
+  const { userInfo,  increment } = useContext(AuthContext);
   const handleAdd = async () => {
     setLoading(true);
     try {

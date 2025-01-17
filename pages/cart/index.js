@@ -13,19 +13,21 @@ export default function Cart() {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [totalFood, setTotalFood] = useState(0);
-
+  const deleteCart= async()=>{
+    try {
+      const res = await axios.put("")
+    }catch{
+      console.log("Error")
+    }
+  }
   const fecthData = async () => {
     let value = 0;
-    try{
-
-      const res = await axios.post("/api/item", {
-        id: userInfo.uid,
-        name: "cart",
-      });
-      const data = res.data;
-    }catch{
-      console.log('error', error)
-    }
+    const res = await axios.post("/api/item", {
+      id: userInfo.uid,
+      name: "cart",
+    });
+    console.log('res', res)
+    const data = res.data;
     if (data) {
       setTotalFood(data.arrayCart.length);
       data.arrayCart.forEach((element) => {
@@ -50,9 +52,6 @@ export default function Cart() {
       fecthData();
     }
   }, [userInfo]);
-  if (!loading) {
-    return <Loader />;
-  }
   return (
     <div className="container m-auto ">
       <div className=" before:left-[17px] page-with-bar">

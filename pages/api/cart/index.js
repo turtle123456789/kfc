@@ -51,6 +51,18 @@ export default async function handle(req, res) {
       res.status(500).json({ message: "Something went wrong" });
     }
   }
+  if (method === "DELETE") {
+    try {
+      const { uid } = req.query;
+      console.log('first', uid)
+      const data = await deleData("cart", uid);
+      console.log('data', data)
+      res.status(200).json(data);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
   if (method === "PUT") {
     try {
       const { uid, id } = req.body;
